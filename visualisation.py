@@ -2,6 +2,7 @@ import networkx as nx
 import random
 import matplotlib.pyplot as plt
 import numpy as np
+from algorithm import DemandNode, DemandTree
 
 n = 20
 k = 5
@@ -22,6 +23,14 @@ for node in pos:
 nx.draw_networkx(G, pos=pos, with_labels=True)
 target_array_x = [pos[node][0] for node in target_vertices]
 target_array_y = [pos[node][1] for node in target_vertices]
-plt.plot(target_array_x, target_array_y, 'rs', markersize=18, linewidth = 0)
+plt.plot(target_array_x, target_array_y, 'gs', markersize=18, linewidth = 0)
+
+
+
+agent_array_x = [pos[node][0] for node in agent_vertices]
+agent_array_y = [pos[node][1] for node in agent_vertices]
+plt.plot(agent_array_x, agent_array_y, 'r^', markersize=18, linewidth = 0)
+
+DemandTree(G, agent_vertices, target_vertices)
 
 plt.show()

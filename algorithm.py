@@ -1,4 +1,5 @@
 from data_structures.linked_list import LinkedList
+import networkx as nx
 
 class DemandNode:
     def __init__(self, label: int, parent: "DemandNode | None" = None, has_agent: bool = False, has_target: bool = False) -> None:
@@ -14,15 +15,68 @@ class DemandNode:
         self.processed = False
         self.label: int = label
 
+    def __str__(self) -> str:
+        return f"{self.label}: d = {self.demand}"
+
 
 
 class DemandTree:
-    def __init__(self) -> None:
-        self.moves: list[list[tuple[DemandNode, DemandNode]]] = []
-        self.root: DemandNode = DemandNode()
+    def __init__(self, G: nx.Graph, agents: list, targets: list) -> None:
+        # set up agents, targets for O(1) lookup in build
+        self.agent = [False]*len(G)
+        self.target = [False]*len(G)
+        for a in agents:
+            self.agent[a] = True
+        for t in targets:
+            self.target[t] = True
+        
 
-    def build_from_tree(self):
-        pass
+        self.moves: list[list[tuple[DemandNode, DemandNode]]] = []
+        self.root = DemandNode(0)
+        
+        # build tree
+        self.initial_demands = [0]*len(G)
+        self.visited = [False]*len(G)
+        self.graph: nx.Graph = G
+        self.build_demand(0, self.root)
+
+        self.process_subtree(self.root)
+
+
+
+    def build_demand(self, label: int, u: DemandNode) -> None:
+        self.visited[label] = True
+        u.demand = 0
+        if self.agent[label]:
+            u.demand -= 1
+        if self.target[label]:
+            u.demand += 1
+        
+        # process children
+        for v in self.graph[label]:
+            if not self.visited[v]:
+                v_node = DemandNode(v, parent=u, has_agent=self.agent[v], has_target=self.target[v])  # O(1)
+                self.build_demand(v, v_node)
+                u.demand += v_node.demand
+                if v_node.demand < 0:
+                    u.neg_children.append(v_node)
+                elif v_node.demand == 0:
+                    u.zero_children.append(v_node)
+                else:
+                    u.pos_children.append(v_node)
+
+    def print_nodes(self, u: DemandNode):
+        print(u)
+        print("+")
+        for v in u.pos_children:
+            self.print_nodes(v)
+        print("0")      
+        for v in u.zero_children:
+            self.print_nodes(v)
+        print("-")
+        for v in u.neg_children:
+            self.print_nodes(v)
+
 
     def process_subtree(self, u: DemandNode) -> None:
         if u.has_agent:
