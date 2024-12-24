@@ -6,31 +6,69 @@ from algorithm import DemandNode, DemandTree
 
 n = 20
 k = 5
-# Create a random unlabelled tree
-G = nx.random_unlabeled_tree(n, seed = 42)
 
-random.seed(42)
-agent_vertices = random.sample(range(n), k)
-target_vertices = random.sample(range(n), k)
+class Window:
+    class Palette:
+        offwhite = np.array([246, 238, 227])/255
+        citron = np.array([202, 207, 133])/255
+        olivine = np.array([140, 186, 128])/255
+        afblue = np.array([101, 142, 156])/255
+        uviolet = np.array([77, 83, 130])/255
+        eviolet = np.array([77, 83, 130])/255
 
-pos = nx.bfs_layout(G, 0, align='horizontal')
-print(pos)
+    LAYOUT: dict = {
+        "ax" : [0.05, 0.05, 0.85, 0.9],
+        "axslider" : [0.24, 0.1, 0.02, 0.8],
+    }
 
-# flip layout
-for node in pos:
-    pos[node][1] = -pos[node][1]
-# Draw the graph using Matplotlib
-nx.draw_networkx(G, pos=pos, with_labels=True)
-target_array_x = [pos[node][0] for node in target_vertices]
-target_array_y = [pos[node][1] for node in target_vertices]
-plt.plot(target_array_x, target_array_y, 'gs', markersize=18, linewidth = 0)
+    def __init__(self, n: int, k: int) -> None:
+        self.build_widgets()
+        self.reset_graph(n, k)
+        self.calc = DemandTree(self.graph, self.agents, self.targets)
+        
+        self.update_display()
 
 
 
-agent_array_x = [pos[node][0] for node in agent_vertices]
-agent_array_y = [pos[node][1] for node in agent_vertices]
-plt.plot(agent_array_x, agent_array_y, 'r^', markersize=18, linewidth = 0)
+    def reset_graph(self, n: int, k: int):
+        self.graph = nx.random_unlabeled_tree(n, seed = 42)
+        random.seed(42)
+        self.agents = random.sample(range(n), k)
+        self.targets = random.sample(range(n), k)
+        self.pos_dict: dict = nx.bfs_layout(self.graph, 0, align='horizontal')
 
-DemandTree(G, agent_vertices, target_vertices)
+        # flip layout
+        for node in self.pos_dict:
+            self.pos_dict[node][1] = -self.pos_dict[node][1]
 
+        self.target_array_x = [self.pos_dict[node][0] for node in self.targets]
+        self.target_array_y = [self.pos_dict[node][1] for node in self.targets]
+
+        self.agent_array_x = [self.pos_dict[node][0] for node in self.agents]
+        self.agent_array_y = [self.pos_dict[node][1] for node in self.agents]
+
+    def update_display(self):
+        # clear axes
+        self.ax.cla()
+
+        nx.draw_networkx(
+            G = self.graph, 
+            pos = self.pos_dict, 
+            with_labels = False, 
+            ax = self.ax, 
+            node_size = 30, 
+            node_color = self.Palette.afblue,
+            edge_color = self.Palette.afblue,
+            width = 2
+        )
+
+        self.ax.plot(self.target_array_x, self.target_array_y, marker='s', color = self.Palette.afblue, markersize=18, linewidth = 0)
+        self.ax.plot(self.agent_array_x, self.agent_array_y, marker='^', color = self.Palette.uviolet, markersize=18, linewidth = 0)
+
+    def build_widgets(self):
+        # figure and axes
+        self.fig = plt.figure(facecolor=self.Palette.eviolet)
+        self.ax = self.fig.add_axes(self.LAYOUT["ax"], facecolor = self.Palette.offwhite)
+
+window = Window(n, k)
 plt.show()
