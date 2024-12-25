@@ -31,8 +31,8 @@ class DemandTree:
             self.target[t] = True
         
 
-        self.moves: list[list[tuple[DemandNode, DemandNode]]] = []
-        self.root = DemandNode(0)
+        self.moves: list[dict[int, int]] = []
+        self.root = DemandNode(0, has_agent=self.agent[0], has_target=self.target[0])
         
         # build tree
         self.initial_demands = [0]*len(G)
@@ -41,6 +41,10 @@ class DemandTree:
         self.build_demand(0, self.root)
 
         self.process_subtree(self.root)
+
+        print(agents)
+        print(targets)
+        print(self.moves)
 
 
 
@@ -76,7 +80,6 @@ class DemandTree:
         print("-")
         for v in u.neg_children:
             self.print_nodes(v)
-
 
     def process_subtree(self, u: DemandNode) -> None:
         if u.has_agent:
@@ -116,6 +119,6 @@ class DemandTree:
         
     def output_move(self, from_node: DemandNode, to_node: DemandNode, t: int) -> None:
         while t > len(self.moves) - 1:  # lengthen moves list until last index is t
-            self.moves.append([])
-        self.moves[t].append((from_node, to_node))
+            self.moves.append(dict())
+        self.moves[t][from_node.label] = to_node.label
     
