@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 from matplotlib.backend_bases import MouseEvent
 import numpy as np
-from algorithm import DemandNode, DemandTree
-from time import sleep
+from algorithm import DemandTree
 
 n = 35
 k = 8
@@ -98,8 +97,10 @@ class Window:
         if event.inaxes == self.ax_n_plus_1:
             self.n += 1
         else:
-            if n > self.k:
+            if self.n > self.k + 1:
                 self.n -= 1
+            else:
+                return
         self.reset_graph()
         self.ax_n_text.cla()
         # Hide X and Y axes label marks
