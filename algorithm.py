@@ -42,12 +42,6 @@ class DemandTree:
 
         self.process_subtree(self.root)
 
-        print(agents)
-        print(targets)
-        print(self.moves)
-
-
-
     def build_demand(self, label: int, u: DemandNode) -> None:
         self.visited[label] = True
         u.demand = 0
@@ -68,18 +62,6 @@ class DemandTree:
                     u.zero_children.append(v_node)
                 else:
                     u.pos_children.append(v_node)
-
-    def print_nodes(self, u: DemandNode):
-        print(u)
-        print("+")
-        for v in u.pos_children:
-            self.print_nodes(v)
-        print("0")      
-        for v in u.zero_children:
-            self.print_nodes(v)
-        print("-")
-        for v in u.neg_children:
-            self.print_nodes(v)
 
     def process_subtree(self, u: DemandNode) -> None:
         if u.has_agent:

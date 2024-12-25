@@ -2,6 +2,7 @@ import networkx as nx
 import random
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
+from matplotlib.backend_bases import MouseEvent
 import numpy as np
 from algorithm import DemandNode, DemandTree
 from time import sleep
@@ -22,16 +23,20 @@ class Window:
         "ax" : [0.05, 0.05, 0.8, 0.9],
         "axnext" : [0.87, 0.87, 0.07, 0.07],
         "axback" : [0.87, 0.77, 0.07, 0.07],
-        "axreset" : [0.87, 0.67, 0.07, 0.07]
+        "axreset" : [0.87, 0.67, 0.07, 0.07],
+        "axntext" : [0.87, 0.4, 0.07, 0.07],
+        "axnplus1" : [0.87, 0.47, 0.07, 0.04],
+        "axnminus1": [0.87, 0.36, 0.07, 0.04]
     }
 
     def __init__(self, n: int, k: int) -> None:
-        self.build_widgets()
         self.n, self.k = n, k
+        self.build_widgets()
+
         self.reset_graph()
 
     def reset_graph(self, event = None):
-        self.graph = nx.random_unlabeled_tree(n)
+        self.graph = nx.random_unlabeled_tree(self.n)
         #random.seed(42)
         self.agents = random.sample(range(self.n), self.k)
         self.targets = random.sample(range(self.n), self.k)
@@ -76,22 +81,6 @@ class Window:
 
         self.fig.canvas.draw_idle()
 
-    def key_press(self, event):
-
-        if event.key == "n":
-            if self.time < len(self.agent_positions) - 1:
-                self.time += 1
-                self.agent_array_x, self.agent_array_y = self.agent_positions[self.time]
-                self.update_display()
-
-        if event.key == "b":
-            if self.time > 0:
-                self.time -= 1
-                self.agent_array_x, self.agent_array_y = self.agent_positions[self.time]
-                self.update_display()
-
-        if event.key == "r":
-            self.reset_graph()
 
     def next_frame(self, event = None):
         if self.time < len(self.agent_positions) - 1:
@@ -104,6 +93,24 @@ class Window:
             self.time -= 1
             self.agent_array_x, self.agent_array_y = self.agent_positions[self.time]
             self.update_display()
+
+    def change_n(self, event : MouseEvent):
+        if event.inaxes == self.ax_n_plus_1:
+            self.n += 1
+        else:
+            if n > self.k:
+                self.n -= 1
+        self.reset_graph()
+        self.ax_n_text.cla()
+        # Hide X and Y axes label marks
+        self.ax_n_text.xaxis.set_tick_params(labelbottom=False)
+        self.ax_n_text.yaxis.set_tick_params(labelleft=False)
+
+        # Hide X and Y axes tick marks
+        self.ax_n_text.set_xticks([])
+        self.ax_n_text.set_yticks([])
+        self.ax_n_text.text(0.5, 0.5, f"n = {self.n}", horizontalalignment='center', verticalalignment='center')
+        self.update_display()
 
     def build_agent_positions(self):
         self.agent_positions = []
@@ -146,6 +153,9 @@ class Window:
         self.ax_next_button = self.fig.add_axes(self.LAYOUT["axnext"])
         self.ax_back_button = self.fig.add_axes(self.LAYOUT["axback"])
         self.ax_reset_button = self.fig.add_axes(self.LAYOUT["axreset"])
+        self.ax_n_text = self.fig.add_axes(self.LAYOUT["axntext"], facecolor = self.Palette.offwhite)
+        self.ax_n_plus_1 = self.fig.add_axes(self.LAYOUT["axnplus1"])
+        self.ax_n_minus_1 = self.fig.add_axes(self.LAYOUT["axnminus1"])
 
         self.next_button = Button(
             ax=self.ax_next_button,
@@ -171,8 +181,30 @@ class Window:
         )
         self.reset_button.on_clicked(self.reset_graph)
 
+        self.n_plus_1 = Button(
+            ax=self.ax_n_plus_1,
+            label = "+ 1",
+            color = self.Palette.olivine,
+            hovercolor = self.Palette.citron
+        )
+        self.n_plus_1.on_clicked(self.change_n)
 
-        self.fig.canvas.mpl_connect("key_press_event", self.key_press)
+        self.n_minus_1 = Button(
+            ax=self.ax_n_minus_1,
+            label = "- 1",
+            color = self.Palette.olivine,
+            hovercolor = self.Palette.citron
+        )
+        self.n_minus_1.on_clicked(self.change_n)
+
+        # Hide X and Y axes label marks
+        self.ax_n_text.xaxis.set_tick_params(labelbottom=False)
+        self.ax_n_text.yaxis.set_tick_params(labelleft=False)
+
+        # Hide X and Y axes tick marks
+        self.ax_n_text.set_xticks([])
+        self.ax_n_text.set_yticks([])
+        self.ax_n_text.text(0.5, 0.5, f"n = {self.n}", horizontalalignment='center', verticalalignment='center')
 
 window = Window(n, k)
 plt.show()
