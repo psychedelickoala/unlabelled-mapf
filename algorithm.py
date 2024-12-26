@@ -39,6 +39,9 @@ class DemandTree:
         self.visited = [False]*len(G)
         self.graph: nx.Graph = G
         self.build_demand(0, self.root)
+        self.sum_of_costs = 0
+
+        self.reached: dict[int, int] = dict()  # the time each target is reached
 
         self.process_subtree(self.root)
 
@@ -96,7 +99,10 @@ class DemandTree:
             else:
                 return idx
         else:
-            return idx  # leave agent where it is
+            self.sum_of_costs += t
+            self.reached[u.label] = t
+            return idx  # leave agent where it is, it is at a target
+
 
         
     def output_move(self, from_node: DemandNode, to_node: DemandNode, t: int) -> None:
