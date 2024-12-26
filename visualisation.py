@@ -110,7 +110,6 @@ class Window:
         self.moves = calc.moves
         
         self.reached = calc.reached
-        print(self.reached)
         self.set_layout(new_graph)
 
         makespan = len(self.moves)
