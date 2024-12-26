@@ -6,9 +6,6 @@ from matplotlib.backend_bases import MouseEvent
 import numpy as np
 from algorithm import DemandTree
 
-n = 35
-k = 8
-
 class Window:
     class Palette:
         # standard
@@ -455,7 +452,3 @@ class Window:
             hovercolor = self.Palette.hover_colour
         )
         self.layout_toggle.on_clicked(self.toggle_layout)
-
-window = Window(n, k)
-plt.show()
-
