@@ -1,6 +1,5 @@
-from data_structures.linked_list import LinkedList
 import networkx as nx
-from time import time
+#from time import time
 
 class DemandNode:
     def __init__(self, label: int, parent: "DemandNode | None" = None, has_agent: bool = False, has_target: bool = False) -> None:
@@ -8,7 +7,7 @@ class DemandNode:
         self.has_target: bool = has_target
         self.demand: int = 0  # d(u)
         self.start: int = 0  # s(u)
-        self.leaving: LinkedList[int] = LinkedList()  # l(u)
+        self.leaving: list[int] = []  # l(u)
         self.neg_children: list[DemandNode] = []
         self.zero_children: list[DemandNode] = []
         self.pos_children: list[DemandNode] = []
@@ -31,27 +30,25 @@ class DemandTree:
         for t in targets:
             self.target[t] = True
         
-
-        self.moves: list[dict[int, int]] = []
+        self.num_of_moves = 0
+        #self.moves: list[dict[int, int]] = []
         self.root = DemandNode(0, has_agent=self.agent[0], has_target=self.target[0])
         
         # build tree
         self.initial_demands = [0]*len(G)
         self.visited = [False]*len(G)
         self.graph: nx.Graph = G
-        start = time()
         self.build_demand(0, self.root)
-        end = time()
-        self.build_demand_time = end - start
-        self.sum_of_costs = 0
+        #self.build_demand_time = end - start
+        #self.sum_of_costs = 0
 
-        self.reached: dict[int, int] = dict()  # the time each target is reached
+        #self.reached: dict[int, int] = dict()  # the time each target is reached
 
-        start = time()
-        self.process_subtree(self.root)
-        end = time()
-        self.alg_time = end - start
-        self.makespan = len(self.moves)
+        #start = time()
+        #self.process_subtree(self.root)
+        #end = time()
+        #self.alg_time = end - start
+        #self.makespan = len(self.moves)
 
     def build_demand(self, label: int, u: DemandNode) -> None:
         self.visited[label] = True
@@ -67,18 +64,20 @@ class DemandTree:
                 v_node = DemandNode(v, parent=u, has_agent=self.agent[v], has_target=self.target[v])  # O(1)
                 self.build_demand(v, v_node)
                 u.demand += v_node.demand
-                if v_node.demand < 0:
-                    u.neg_children.append(v_node)
-                elif v_node.demand == 0:
-                    u.zero_children.append(v_node)
-                else:
-                    u.pos_children.append(v_node)
+                # if v_node.demand < 0:
+                #     u.neg_children.append(v_node)
+                # elif v_node.demand == 0:
+                #     u.zero_children.append(v_node)
+                # else:
+                #     u.pos_children.append(v_node)
+
+        
 
     def process_subtree(self, u: DemandNode) -> None:
         if u.has_agent:
-            u.leaving.insert(index = 0, item = u.start)  # insert s(u) at start of l(u)
+            u.leaving.insert(0, u.start)  # insert s(u) at start of l(u)
         for v in u.neg_children:
-            v.start = max(u.start - 1, u.leaving.get_last_item(), 0)
+            v.start = max(u.start - 1, u.leaving[-1], 0)
             self.process_subtree(v)
             # demand of v should now be 0
         idx = 0
@@ -107,14 +106,15 @@ class DemandTree:
             else:
                 return idx
         else:
-            self.sum_of_costs += t
-            self.reached[u.label] = t
+            #self.sum_of_costs += t
+            #self.reached[u.label] = t
             return idx  # leave agent where it is, it is at a target
 
 
         
     def output_move(self, from_node: DemandNode, to_node: DemandNode, t: int) -> None:
-        while t > len(self.moves) - 1:  # lengthen moves list until last index is t
-            self.moves.append(dict())
-        self.moves[t][from_node.label] = to_node.label
+        self.num_of_moves += 1
+        #while t > len(self.moves) - 1:  # lengthen moves list until last index is t
+        #    self.moves.append(dict())
+        #self.moves[t][from_node.label] = to_node.label
     
