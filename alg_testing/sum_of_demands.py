@@ -5,7 +5,8 @@ from math import sqrt, log
 
 def rand_sum_of_demands(n, k, labelled = True):
     if labelled:
-        G = nx.random_labeled_tree(n)
+        #G = nx.random_labeled_tree(n)
+        G = nx.path_graph(n)
     else:
         G = nx.random_unlabeled_tree(n)
     
@@ -50,28 +51,54 @@ def rand_sum_of_demands(n, k, labelled = True):
 
     return sum_of_demands
 
-
-# Open a CSV file to write the results
-with open("alg_testing/sum_of_demands_labelled_ctd.csv", "w", newline="") as f:
-    writer = csv.writer(f)
-    # Write the header row to the CSV file
-    writer.writerow(["n", "k", "sum_of_demands"])
-    
-    start = 100100
-    end = 1000100
-    step = 1000
-
-    print("Generating", (end-start)//step, "data points...")
-
-    # Loop over a range of values for n
-    for n in range(start, end, step):
-        if (n-start)%((end-start)//100) == 0:
-            print("Progress: ", (n-start)//((end-start)//100), "%")
-        k_values = [1, 5, int(log(n)), int(sqrt(n)), n//10, n//4, n//2]
+def first_gen():
+    # Open a CSV file to write the results
+    with open("alg_testing/sum_of_demands_labelled_path.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        # Write the header row to the CSV file
+        writer.writerow(["n", "k", "sum_of_demands"])
         
-        for k in k_values:
+        start = 10100
+        end = 1000100
+        step = 1000
+
+        print("Generating", (end-start)//step, "data points...")
+
+        # Loop over a range of values for n
+        for n in range(start, end, step):
+            if (n-start)%((end-start)//100) == 0:
+                print("Progress: ", (n-start)//((end-start)//100), "%")
+            k_values = [1, 5, int(log(n)), int(sqrt(n)), n//10, n//4, n//2]
+            
+            for k in k_values:
+                sum_of_demands = rand_sum_of_demands(n, k)
+                # Write the results of the algorithm to the CSV file
+                writer.writerow([n, k, sum_of_demands])
+
+        print("Done!")
+
+def second_gen():
+    # Open a CSV file to write the results
+    with open("alg_testing/sum_of_demands_over_k_new.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        # Write the header row to the CSV file
+        writer.writerow(["k", "sum_of_demands"])
+        n = 1000000
+        start = 1
+        end = 1000
+        step = 111
+        ks = range(start, end, step)
+        ks = [5, 10, 20, 30, 50, 75, n-5, n-10, n-20, n-30, n-50, n-75]
+
+        print("Generating", (end-start)//step, "data points...")
+
+        # Loop over a range of values for n
+        for k in ks:
+            
             sum_of_demands = rand_sum_of_demands(n, k)
             # Write the results of the algorithm to the CSV file
-            writer.writerow([n, k, sum_of_demands])
+            writer.writerow([k, sum_of_demands])
 
-    print("Done!")
+        print("Done!")
+
+first_gen()
