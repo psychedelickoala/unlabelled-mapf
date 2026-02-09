@@ -12,7 +12,7 @@ k_types = []
 k_type = 0
 
 # Read the CSV file
-with open("alg_testing/sum_of_demands_labelled_path.csv", "r") as f:
+with open("alg_testing/sum_of_demands_labelled.csv", "r") as f:
     reader = csv.reader(f)
     next(reader)  # Skip the header row
     for row in reader:
