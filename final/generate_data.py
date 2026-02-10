@@ -195,10 +195,10 @@ if __name__ == "__main__":
     seed = 42  # seed for reproducibility
 
     # Generating n vs sum of demands (OPT)
-    # n_vs_sod_outfile = "final/n_vs_sod.csv"
+    n_vs_sod_outfile = "final/n_vs_sod.csv"
     ns = list(range(100, 100_000, 100)) + list(range(100_000, 1_001_000, 1_000))
     
-    # generate_n_vs_sod(n_vs_sod_outfile, ns, seed = seed)
+    generate_n_vs_sod(n_vs_sod_outfile, ns, seed = seed)
     
     # Generating k vs sum of demands (OPT)
     k_vs_sod_outfile = "final/k_vs_sod.csv"
