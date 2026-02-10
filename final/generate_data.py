@@ -1,5 +1,9 @@
 """
-Docstring for FINAL-CODE-FOR-SUBMISSION.sum_of_demands
+Generates data for plotting.
+Note generating large amounts of data takes a long time.
+
+Last modified: 10/2/26
+Author: Annalisa Calvi, Monash University
 """
 
 import networkx as nx
@@ -10,28 +14,30 @@ from typing import List, Optional, Iterable
 from tqdm import tqdm
 import numpy as np
 
+# ============== FUNCTIONS ==============
+
 def rand_sum_of_demands(n: int, k: int, labelled: bool = True) -> int:
     """
-    Docstring for rand_sum_of_demands
+    Calculate the sum of demands (OPT) for a random tree.
     
-    :param n: Description
-    :param k: Description
-    :param labelled: Description
+    :param n: Number of vertices in the tree
+    :param k: Number of agents/targets in the tree
+    :param labelled: Whether to generate a labelled or unlabelled tree
     """
     
-    # generate random tree G
+    # Generate random tree G
     if labelled:
         G: nx.Graph = nx.random_labeled_tree(n)
     else:
         G: nx.Graph = nx.random_unlabeled_tree(n)
     
-    # set agent positions
+    # Set agent positions
     is_agent: List[bool] = [False] * n
     agent_positions: List[int] = random.sample(range(n), k)
     for i in agent_positions:
         is_agent[i] = True
 
-    # set target positions
+    # Set target positions
     is_target: List[bool] = [False] * n
     target_positions: List[int] = random.sample(range(n), k)
     for i in target_positions:
@@ -77,16 +83,14 @@ def rand_sum_of_demands(n: int, k: int, labelled: bool = True) -> int:
     return sum_of_demands
 
 
-def generate_n_vs_sod(path_to_csv: str, ns: Iterable, seed: Optional[int] = None):
+def generate_n_vs_sod(path_to_csv: str, ns: Iterable, seed: Optional[int] = None) -> None:
     """
-    Docstring for generate_n_vs_sod
+    Write n vs sum of demands (OPT) data to a CSV file.
+    CSV file will have columns n, k, sum_of_demands.
     
-    :param path_to_csv: Description
-    :type path_to_csv: str
-    :param ns: Description
-    :type ns: Iterable
-    :param seed: Description
-    :type seed: Optional[int]
+    :param path_to_csv: Path to CSV file. The contents of this file will be overwritten.
+    :param ns: Values of n (number of vertices) to compute OPT for.
+    :param seed: Random seed to use.
     """
 
     # set seed
@@ -113,20 +117,17 @@ def generate_n_vs_sod(path_to_csv: str, ns: Iterable, seed: Optional[int] = None
         print("Done!")
 
 
-def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_samples: int = 1_000, seed: Optional[int] = None):
+def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_samples: int = 1_000, seed: Optional[int] = None) -> None:
     """
-    Docstring for generate_k_vs_sod
+
+    Write k vs sum of demands (OPT) data to a CSV file.
+    CSV file will have columns k, sum_of_demands.
     
-    :param path_to_csv: Description
-    :type path_to_csv: str
-    :param n: Description
-    :type n: int
-    :param w: Description
-    :type w: Optional[int]
-    :param num_samples: Description
-    :type num_samples: int
-    :param seed: Description
-    :type seed: Optional[int]
+    :param path_to_csv: Path to CSV file. The contents of this file will be overwritten.
+    :param n: Value of n (number of vertices) to use.
+    :param w: Weighting of the edges when selecting values of k to use. Should be >= 1 or None.
+    :num_samples: Number of values of k to use.
+    :param seed: Random seed to use.
     """
 
     # set seed
@@ -161,16 +162,11 @@ def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_sam
 
 def generate_k_list(n: int, w: Optional[int], num_samples: int = 1_000) -> np.ndarray:
     """
-    Docstring for generate_k_list
+    Generates values of k to use.
     
-    :param n: Description
-    :type n: int
-    :param w: Description
-    :type w: Optional[int]
-    :param num_samples: Description
-    :type num_samples: int
-    :return: Description
-    :rtype: ndarray[Any, Any]
+    :param n: Value of n (number of vertices) to use
+    :param w: Weighting of the edges when selecting values of k to use. Should be >= 1 or None.
+    :param num_samples: Number of values to generate.
     """
     
     if w is None:
@@ -189,14 +185,17 @@ def generate_k_list(n: int, w: Optional[int], num_samples: int = 1_000) -> np.nd
     return K_int
 
 
+# ============== BODY ==============
 if __name__ == "__main__":
-    seed = 42
+    seed = 42  # seed for reproducibility
 
+    # Generating n vs sum of demands (OPT)
     n_vs_sod_outfile = "final/n_vs_sod.csv"
     ns = list(range(100, 100_000, 100)) + list(range(100_000, 1_001_000, 1_000))
     
     generate_n_vs_sod(n_vs_sod_outfile, ns, seed = seed)
     
+    # Generating k vs sum of demands (OPT)
     k_vs_sod_outfile = "final/k_vs_sod.csv"
     n = 1_000_000
     w = 4
