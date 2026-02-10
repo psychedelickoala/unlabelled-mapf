@@ -16,17 +16,20 @@ import numpy as np
 
 # ============== FUNCTIONS ==============
 
-def rand_sum_of_demands(n: int, k: int, labelled: bool = True) -> int:
+def rand_sum_of_demands(n: int, k: int, path: bool = False, labelled: bool = True) -> int:
     """
     Calculate the sum of demands (OPT) for a random tree.
     
     :param n: Number of vertices in the tree
     :param k: Number of agents/targets in the tree
+    :param path: Whether to generate a path or a random tree
     :param labelled: Whether to generate a labelled or unlabelled tree
     """
     
     # Generate random tree G
-    if labelled:
+    if path:
+        G: nx.Graph = nx.path_graph(n)
+    elif labelled:
         G: nx.Graph = nx.random_labeled_tree(n)
     else:
         G: nx.Graph = nx.random_unlabeled_tree(n)
@@ -83,13 +86,14 @@ def rand_sum_of_demands(n: int, k: int, labelled: bool = True) -> int:
     return sum_of_demands
 
 
-def generate_n_vs_sod(path_to_csv: str, ns: Iterable, seed: Optional[int] = None) -> None:
+def generate_n_vs_sod(path_to_csv: str, ns: Iterable, path: bool = False, seed: Optional[int] = None) -> None:
     """
     Write n vs sum of demands (OPT) data to a CSV file.
     CSV file will have columns n, k, sum_of_demands.
     
     :param path_to_csv: Path to CSV file. The contents of this file will be overwritten.
     :param ns: Values of n (number of vertices) to compute OPT for.
+    :param path: Whether to generate a path or a random tree.
     :param seed: Random seed to use.
     """
 
@@ -111,13 +115,13 @@ def generate_n_vs_sod(path_to_csv: str, ns: Iterable, seed: Optional[int] = None
             k_values: List[int] = [1, 5, int(log(n)), int(sqrt(n)), n // 10, n // 4, n // 2]
             
             for k in k_values:
-                sum_of_demands: int = rand_sum_of_demands(n, k)
+                sum_of_demands: int = rand_sum_of_demands(n, k, path=path)
                 writer.writerow([n, k, sum_of_demands])
 
         print("Done!")
 
 
-def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_samples: int = 1_000, seed: Optional[int] = None) -> None:
+def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_samples: int = 1_000, path: bool = False, seed: Optional[int] = None) -> None:
     """
 
     Write k vs sum of demands (OPT) data to a CSV file.
@@ -125,6 +129,7 @@ def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_sam
     
     :param path_to_csv: Path to CSV file. The contents of this file will be overwritten.
     :param n: Value of n (number of vertices) to use.
+    :param path: Whether to generate a path or a random tree.
     :param w: Weighting of the edges when selecting values of k to use. Should be >= 1 or None.
     :num_samples: Number of values of k to use.
     :param seed: Random seed to use.
@@ -154,7 +159,7 @@ def generate_k_vs_sod(path_to_csv: str, n: int, w: Optional[int] = None, num_sam
         # Calculate SOD for each k
         for k in tqdm(ks):
 
-            sum_of_demands: int = rand_sum_of_demands(n, k)
+            sum_of_demands: int = rand_sum_of_demands(n, k, path=path)
             writer.writerow([k, sum_of_demands])
 
         print("Done!")
@@ -190,15 +195,20 @@ if __name__ == "__main__":
     seed = 42  # seed for reproducibility
 
     # Generating n vs sum of demands (OPT)
-    n_vs_sod_outfile = "final/n_vs_sod.csv"
+    # n_vs_sod_outfile = "final/n_vs_sod.csv"
     ns = list(range(100, 100_000, 100)) + list(range(100_000, 1_001_000, 1_000))
     
-    generate_n_vs_sod(n_vs_sod_outfile, ns, seed = seed)
+    # generate_n_vs_sod(n_vs_sod_outfile, ns, seed = seed)
     
     # Generating k vs sum of demands (OPT)
     k_vs_sod_outfile = "final/k_vs_sod.csv"
     n = 1_000_000
-    w = 4
+    w = 6
     num_samples = 1000
 
-    generate_k_vs_sod(k_vs_sod_outfile, n, w, num_samples)
+    generate_k_vs_sod(k_vs_sod_outfile, n, w, num_samples, seed=seed)
+
+    # Generating n vs sum of demands (OPT), restricted to paths
+    n_vs_sod_path_outfile = "final/n_vs_sod_paths.csv"
+
+    generate_n_vs_sod(n_vs_sod_path_outfile, ns, path=True, seed=seed)

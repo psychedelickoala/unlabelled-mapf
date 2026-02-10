@@ -7,10 +7,11 @@ Author: Annalisa Calvi, Monash University
 
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Literal
 
 # ===== CONFIGURE =====
-n_vs_sod_readfile = "final/n_vs_sod.csv"  # path to file (should have k, sum_of_demands columns)
-show_improved_est = False  # True to plot the improved upper bound, False to plot original upper bound
+n_vs_sod_readfile = "final/n_vs_sod_paths.csv"  # path to file (should have k, sum_of_demands columns)
+est_to_show: Literal["original", "improved", "conjectured"] = "conjectured"
 
 k_types = [
     "$k = 1$", "$k = 5$", "$k = \log{n}$", "$k = \sqrt{n}$", "$k = n/10$", "$k = n/4$", "$k = n/2$"
@@ -47,8 +48,17 @@ for i, k_type in enumerate(k_types_to_show):
     # calculate estimate for comparison
     strong_est = np.sqrt(ks * (ns - ks)*np.sqrt(np.pi*ns/2))
     weak_est = ks*(ns - ks)
-    est = strong_est if show_improved_est else weak_est
-    c = "b" if show_improved_est else "r"  # blue for improved estimate, red for old estimate
+    conj_est = np.sqrt(ns*ks*(ns - ks))
+
+    if est_to_show == "original":
+        est = weak_est
+        c = "red"
+    elif est_to_show == "improved":
+        est = strong_est
+        c = "blue"
+    elif est_to_show == "conjectured":
+        est = conj_est
+        c = "black"
 
     # First column: Data only (no formula values)
     axs[i, 0].scatter(ns, sods, color='grey')

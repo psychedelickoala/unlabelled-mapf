@@ -11,7 +11,7 @@ import numpy as np
 # ===== CONFIGURE =====
 k_vs_sod_readfile = "final/k_vs_sod.csv"  # path to file (should have k, sum_of_demands columns)
 n = 1_000_000  # value of n (for calculating formulas, should match data)
-show_improved_est = True  # True to plot the improved upper bound, False to plot original upper bound
+show_improved_est = False  # True to plot the improved upper bound, False to plot original upper bound
 # =====================
 
 # read in data
